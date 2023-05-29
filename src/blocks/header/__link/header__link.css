@@ -12,4 +12,8 @@
   text-decoration: none;
 
   margin-top: 6px;
+  transition: opacity .4s ease-in-out;
+}
+.header__link:hover {
+    opacity: .6;
 }

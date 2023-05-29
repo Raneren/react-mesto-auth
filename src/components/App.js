@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -12,25 +12,14 @@ import AddPlacePopup from "./AddPlacePopup";
 import Login from "./Login";
 import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
+import * as auth from "../utils/auth";
+import InfoTooltip from "./InfoTooltip";
+import errorImage from "../images/error.svg";
+import successImage from "../images/success.svg";
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
-  //Получаем данные профиля и карточки с сервера
-  React.useEffect(() => {
-    api
-      .getUserInfo()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch((err) => console.log(err));
-    api
-      .getInitialCards()
-      .then((cardsData) => {
-        setCards(cardsData);
-      })
-      .catch((err) => console.log(err));
-  }, []);
 
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
     React.useState(false);
@@ -38,8 +27,38 @@ function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] =
     React.useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(false);
+  const [isInfoPopupOpen, setIsInfoPopupOpen] = React.useState(false);
+
+  const [infoPopupValue, setInfoPopupValue] = React.useState({
+    image: "",
+    text: "",
+  });
+
   const [selectedCard, setSelectedCard] = React.useState({});
+
   const [loggedIn, setLoggedIn] = React.useState(false);
+
+  const [userEmail, setUserEmail] = React.useState("");
+
+  const navigate = useNavigate();
+
+  //Получаем данные профиля и карточки с сервера для авторизованного пользователя
+  React.useEffect(() => {
+    if (loggedIn) {
+      api
+        .getUserInfo()
+        .then((userData) => {
+          setCurrentUser(userData);
+        })
+        .catch((err) => console.log(err));
+      api
+        .getInitialCards()
+        .then((cardsData) => {
+          setCards(cardsData);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [loggedIn]);
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
@@ -58,6 +77,7 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setIsImagePopupOpen(false);
+    setIsInfoPopupOpen(false);
     setSelectedCard({});
   }
 
@@ -123,13 +143,87 @@ function App() {
       })
       .catch((err) => console.log(err));
   }
+  //функция посапа с сообщением об успехе
+  function onSuccess() {
+    setIsInfoPopupOpen(true);
+    setInfoPopupValue({
+      ...infoPopupValue,
+      image: { successImage },
+      text: "Вы успешно зарегистрировались!",
+    });
+  }
+  //функция посапа с сообщением об ошибке
+  function onError() {
+    setIsInfoPopupOpen(true);
+    setInfoPopupValue({
+      ...infoPopupValue,
+      image: { errorImage },
+      text: "Что-то пошло не так! Попробуйте ещё раз.",
+    });
+  }
+  //функция проверки токена
+  function handleCheckToken() {
+    const jwt = localStorage.getItem("jwt");
+    if (jwt) {
+      auth
+        .checkToken(jwt)
+        .then((res) => {
+          setLoggedIn(true);
+          setUserEmail(res.data.email);
+          navigate("/");
+        })
+        .catch((err) => console.log(err));
+    }
+  }
+  React.useEffect(() => {
+    handleCheckToken();
+  }, []);
+  //функция авторизации пользователя
+  function handleLogin(password, email) {
+    auth
+      .authorize(password, email)
+      .then((res) => {
+        localStorage.setItem("jwt", res.token);
+        setLoggedIn(true);
+        navigate("/");
+      })
+      .catch((err) => {
+        onError();
+        console.log(err);
+      });
+  }
+  //функция регистрации пользователя
+  function handleRegister(password, email) {
+    auth
+      .register(password, email)
+      .then(() => {
+        Navigate("/sign_in");
+        onSuccess();
+      })
+      .catch((err) => {
+        onError();
+        console.log(err);
+      });
+  }
+  //функция выхода
+  function handleSignOut() {
+    localStorage.removeItem("jwt");
+    setLoggedIn(false);
+  }
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
-        <Header loggedIn={loggedIn} />
+        <Header
+          loggedIn={loggedIn}
+          userEmail={userEmail}
+          onSignOut={handleSignOut}
+        />
         <Routes>
-          <Route path="/sign-in" element={<Login />} />
-          <Route path="/sign-up" element={<Register />} />
+          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+          <Route
+            path="/sign-up"
+            element={<Register onRegister={handleRegister} />}
+          />
           <Route
             path="/"
             element={
@@ -178,6 +272,11 @@ function App() {
           link={selectedCard.link}
           isOpen={isImagePopupOpen}
           onClose={closeAllPopups}
+        />
+        <InfoTooltip
+          isOpen={isInfoPopupOpen}
+          onClose={closeAllPopups}
+          onValue={infoPopupValue}
         />
       </CurrentUserContext.Provider>
     </div>

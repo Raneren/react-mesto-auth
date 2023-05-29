@@ -5,7 +5,12 @@ function Header(props) {
   return (
     <header className="header">
       <img className="header__logo" src={logo} alt="Логотип 'Место'" />
-      {!props.loggedIn && (
+      {props.loggedIn ? (
+        <div className="header__menu">
+          <p className="header__user-email">{props.userEmail}</p>
+          <Link to="/sign-in" className="header__link header__link_sign-out" onClick={props.onSignOut}>Выйти</Link>
+        </div>
+      ) : (
         <>
           {
             <Routes>

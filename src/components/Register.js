@@ -2,15 +2,22 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 function Register(props) {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-
-  function handleChangeEmail(e) {
-    setEmail(e.target.value);
+  const [formValue, setFormValue] = React.useState({
+    email: "",
+    password: "",
+  });
+  function handleChange(e) {
+    const {name, value} = e.target;
+    setFormValue({
+      ...formValue,
+      [name]: value
+    });
   }
 
-  function handleChangePassword(e) {
-    setPassword(e.target.value);
+  function handleSubmit(e) {
+    e.preventDefault();
+    const {email, password} = formValue;
+    props.onRegister(password, email);
   }
   return (
     <div className="auth-container">
@@ -18,7 +25,7 @@ function Register(props) {
         className="form form_type_auth"
         name="login_form"
         method="post"
-        onSubmit={props.onSubmit}
+        onSubmit={handleSubmit}
       >
         <h2 className="form__title">Регистрация</h2>
         <fieldset className="form__field">
@@ -28,9 +35,9 @@ function Register(props) {
             placeholder="Email"
             name="email"
             minLength="2"
-            maxLength="30"
-            value={email || ""}
-            onChange={handleChangeEmail}
+            maxLength="256"
+            value={formValue.email || ""}
+            onChange={handleChange}
             required
           />
           <span className="form__input-error email-error"></span>
@@ -41,8 +48,10 @@ function Register(props) {
             type="password"
             placeholder="Пароль"
             name="password"
-            value={password || ""}
-            onChange={handleChangePassword}
+            minLength="6"
+            maxLength="12"
+            value={formValue.password || ""}
+            onChange={handleChange}
             required
           />
           <span className="form__input-error password-error"></span>
