@@ -165,7 +165,7 @@ function App() {
   }
   React.useEffect(() => {
     handleCheckToken();
-  }, []);
+  }, [loggedIn]);
   //функция авторизации пользователя
   function handleLogin(password, email) {
     auth
@@ -185,7 +185,7 @@ function App() {
     auth
       .register(password, email)
       .then(() => {
-        Navigate("/sign_in");
+        navigate("/sign_in");
         onSuccess();
       })
       .catch((err) => {
@@ -204,6 +204,7 @@ function App() {
     setIsHeaderMenuOpen(false)
     :setIsHeaderMenuOpen(true)
   }
+  console.log(userEmail);
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
@@ -237,13 +238,12 @@ function App() {
             }
           />
           <Route
-            path="/"
+            path="*"
             element={
-              loggedIn ? (
+              loggedIn ? 
                 <Navigate to="/" replace />
-              ) : (
+               : 
                 <Navigate to="/sign-in" replace />
-              )
             }
           />
         </Routes>

@@ -48,10 +48,6 @@ function Header(props) {
                     </Link>
                   }
                 />
-              </Routes>
-            }
-            {
-              <Routes>
                 <Route
                   path="/sign-in"
                   element={

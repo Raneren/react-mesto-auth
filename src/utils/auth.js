@@ -3,7 +3,6 @@ export const baseUrl = "https://auth.nomoreparties.co";
 //Функция для проверки ответа
 function checkResponse(res) {
   if (res.ok) {
-    console.log(res);
     return res.json();
   }
   console.log(res);
