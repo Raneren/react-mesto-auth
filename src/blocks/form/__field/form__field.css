@@ -11,3 +11,8 @@
 .form__field:not(:last-of-type) {
   margin-bottom: 30px;
 }
+@media screen and (max-width: 425px) {
+  .form__field:first-of-type {
+    margin-top: 75px;
+  }
+}

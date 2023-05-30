@@ -7,3 +7,9 @@
     text-align: center;
     color: #fff;
 }
+@media screen and (max-width:425px) {
+    .form_type_auth {
+        padding: 40px 30px;
+    }
+    
+}

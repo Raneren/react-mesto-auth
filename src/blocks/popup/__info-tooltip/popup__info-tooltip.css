@@ -10,3 +10,8 @@
   align-items: center;
   padding: 60px 36px;
 }
+@media screen and (max-width: 425px) {
+  .popup__info-tooltip {
+    padding: 50px 18px;
+  }
+}

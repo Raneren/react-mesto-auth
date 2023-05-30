@@ -10,3 +10,8 @@
 
   margin: 32px 0 0;
 }
+@media screen and (max-width: 425px) {
+  .popup__info-title {
+    margin: 40px 0 0;
+  }
+}

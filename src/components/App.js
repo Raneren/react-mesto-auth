@@ -14,8 +14,6 @@ import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
 import * as auth from "../utils/auth";
 import InfoTooltip from "./InfoTooltip";
-import errorImage from "../images/error.svg";
-import successImage from "../images/success.svg";
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState({});
@@ -28,11 +26,9 @@ function App() {
     React.useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(false);
   const [isInfoPopupOpen, setIsInfoPopupOpen] = React.useState(false);
+  const [isHeaderMenuOpen, setIsHeaderMenuOpen] = React.useState(false);
 
-  const [infoPopupValue, setInfoPopupValue] = React.useState({
-    image: "",
-    text: "",
-  });
+  const [isResult, setIsResult] = React.useState('');
 
   const [selectedCard, setSelectedCard] = React.useState({});
 
@@ -146,20 +142,12 @@ function App() {
   //функция посапа с сообщением об успехе
   function onSuccess() {
     setIsInfoPopupOpen(true);
-    setInfoPopupValue({
-      ...infoPopupValue,
-      image: { successImage },
-      text: "Вы успешно зарегистрировались!",
-    });
+    setIsResult(true);
   }
   //функция посапа с сообщением об ошибке
   function onError() {
     setIsInfoPopupOpen(true);
-    setInfoPopupValue({
-      ...infoPopupValue,
-      image: { errorImage },
-      text: "Что-то пошло не так! Попробуйте ещё раз.",
-    });
+    setIsResult(false);
   }
   //функция проверки токена
   function handleCheckToken() {
@@ -210,6 +198,12 @@ function App() {
     localStorage.removeItem("jwt");
     setLoggedIn(false);
   }
+  //функция открытия/скрытия меню в хедере
+  function handleMenuClick() {
+    isHeaderMenuOpen?
+    setIsHeaderMenuOpen(false)
+    :setIsHeaderMenuOpen(true)
+  }
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
@@ -217,6 +211,8 @@ function App() {
           loggedIn={loggedIn}
           userEmail={userEmail}
           onSignOut={handleSignOut}
+          isOpen={isHeaderMenuOpen}
+          onMenuClick={handleMenuClick}
         />
         <Routes>
           <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
@@ -276,7 +272,7 @@ function App() {
         <InfoTooltip
           isOpen={isInfoPopupOpen}
           onClose={closeAllPopups}
-          onValue={infoPopupValue}
+          onResult={isResult}
         />
       </CurrentUserContext.Provider>
     </div>
